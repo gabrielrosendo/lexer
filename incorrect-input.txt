@@ -1,0 +1,2 @@
+x = x + 5 @; // Unrecognized symbol '@'
+print("Number 5", 5) // Incorrect String concatenation

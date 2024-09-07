@@ -1,0 +1,107 @@
+%option noyywrap
+
+%{
+#include <stdio.h>
+#include <string.h>
+
+#define YY_DECL int yylex()
+
+int words = 0;
+int chars = 0;
+int lines = 0;
+
+%}
+
+letter      [a-zA-Z]
+digit       [0-9]
+ID          {letter}({letter}|{digit})*
+delim       [ \t\n]
+NUMBER         {digit}+(\.{digit}+)?(E[+\-]?(digit)+)?
+ws          {delim}+
+operator    [+\-*/%]
+paren       [()]
+symbol      [!#$^&"'<>]
+
+%%
+"/*"    				{
+							int c;
+							while((c = input()) != 0) {
+								if(c == '*') {
+									if((c = input()) == '/')
+										break;
+									else
+										unput(c);
+								}
+							}
+						}
+\"(\\\"|[^\"\n])*\" { words++; chars += strlen(yytext); printf("%-10s | %-10s\n", yytext, "STRING"); }
+
+					
+"int"|"float"|"char"  { words++; chars += strlen(yytext);
+                        printf("%-10s | %-10s\n", yytext, "TYPE");
+                      }
+
+"print"|"if"|"else"|"while"|"return" { words++; chars += strlen(yytext);
+                        printf("%-10s | %-10s\n", yytext, "KEYWORD");
+                      }
+        
+{ID}	{words++; chars += strlen(yytext);
+         printf("%-10s | %-10s\n", yytext, "IDENTIFIER");
+        }
+            
+{NUMBER}	{words++; chars += strlen(yytext);
+              printf("%-10s | %-10s\n", yytext, "NUMBER");
+            }
+
+{operator}  {words++; chars += strlen(yytext);
+              printf("%-10s | %-10s\n", yytext, "OPERATOR");
+            }	
+{symbol}  {words++; chars += strlen(yytext);
+              printf("%-10s | %-10s\n", yytext, "SYMBOL");
+            }
+
+{paren}  {words++; chars += strlen(yytext);
+              printf("%-10s | %-10s\n", yytext, "PARENTHESIS");
+            }
+
+";"		{chars++;
+              printf("%-10s | %-10s\n", yytext, "SEMICOLON");
+		}
+		
+"="		{chars++;
+              printf("%-10s | %-10s\n", yytext, "EQ");
+		}
+"{"       {chars++;
+			  printf("%-10s | %-10s\n", yytext, "LBRACE");
+		}
+"}"       {chars++;
+			  printf("%-10s | %-10s\n", yytext, "RBRACE");
+		}
+		
+
+\n		{lines++; chars=0;}
+[ \t]	{chars++;}
+.		{chars++;
+         printf("%s : Unrecognized symbol at line %d char %d\n", yytext,lines,chars);
+		}
+		
+
+
+%%
+int main(int argc, char**argv)
+{
+	#ifdef YYDEBUG
+		yydebug = 1;
+	#endif
+
+	printf("Compiler started. \n\n");
+
+	if (argc > 1){
+	  if(!(yyin = fopen(argv[1], "r")))
+          {
+		perror(argv[1]);
+		return(1);
+	  }
+	}
+	yylex();
+}
