@@ -41,9 +41,26 @@ symbol      [!#$^&"'<>]
                         printf("%-10s | %-10s\n", yytext, "TYPE");
                       }
 
-"print"|"if"|"else"|"while"|"return" { words++; chars += strlen(yytext);
-                        printf("%-10s | %-10s\n", yytext, "KEYWORD");
-                      }
+"print" { words++; chars += strlen(yytext);
+    printf("%-10s | %-10s\n", yytext, "PRINT_KEYWORD");
+}
+
+"if" { words++; chars += strlen(yytext);
+    printf("%-10s | %-10s\n", yytext, "IF_KEYWORD");
+}
+
+"else" { words++; chars += strlen(yytext);
+    printf("%-10s | %-10s\n", yytext, "ELSE_KEYWORD");
+}
+
+"while" { words++; chars += strlen(yytext);
+    printf("%-10s | %-10s\n", yytext, "WHILE_KEYWORD");
+}
+
+"return" { words++; chars += strlen(yytext);
+    printf("%-10s | %-10s\n", yytext, "RETURN_KEYWORD");
+}
+
         
 {ID}	{words++; chars += strlen(yytext);
          printf("%-10s | %-10s\n", yytext, "IDENTIFIER");
