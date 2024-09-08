@@ -21,6 +21,7 @@ ws          {delim}+
 operator    [+\-*/%]
 paren       [()]
 symbol      [!#$^&"'<>]
+BAD_ID		{NUMBER}{ID}
 
 %%
 "/*"    				{
@@ -60,7 +61,6 @@ symbol      [!#$^&"'<>]
 "return" { words++; chars += strlen(yytext);
     printf("%-10s | %-10s\n", yytext, "RETURN_KEYWORD");
 }
-
         
 {ID}	{words++; chars += strlen(yytext);
          printf("%-10s | %-10s\n", yytext, "IDENTIFIER");
@@ -75,6 +75,10 @@ symbol      [!#$^&"'<>]
             }	
 {symbol}  {words++; chars += strlen(yytext);
               printf("%-10s | %-10s\n", yytext, "SYMBOL");
+            }
+
+{BAD_ID}	{words++; chars += strlen(yytext);
+               printf("|ERROR| %s : Bad Identifier at line %d char %d\n", yytext,lines,chars);
             }
 
 {paren}  {words++; chars += strlen(yytext);
@@ -99,7 +103,7 @@ symbol      [!#$^&"'<>]
 \n		{lines++; chars=0;}
 [ \t]	{chars++;}
 .		{chars++;
-         printf("%s : Unrecognized symbol at line %d char %d\n", yytext,lines,chars);
+         printf("|ERROR| %s : Unrecognized symbol at line %d char %d\n", yytext,lines,chars);
 		}
 		
 
